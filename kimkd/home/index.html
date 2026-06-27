@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 인생 타임머신</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap');
+        body {
+            background-color: #fcfaf3;
+            font-family: 'Nanum Myeongjo', serif;
+            color: #4a403a;
+        }
+        .album-card {
+            background: #fffdf5;
+            border: 1px solid #e5dcc3;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        .album-card:hover {
+            transform: translateY(-5px);
+        }
+        .photo-box {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            background-color: #f0e6d2;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-10">
+
+    <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-3xl md:text-4xl font-bold mb-8 text-[#8b7355]">나의 인생 타임머신</h1>
+        
+        <div class="flex justify-center gap-4 mb-12">
+            <button onclick="displayData(2014)" class="px-6 py-2 bg-[#d4c5a9] hover:bg-[#bfae8d] text-white rounded-full transition-all shadow-md">2014</button>
+            <button onclick="displayData(2018)" class="px-6 py-2 bg-[#d4c5a9] hover:bg-[#bfae8d] text-white rounded-full transition-all shadow-md">2018</button>
+            <button onclick="displayData(2026)" class="px-6 py-2 bg-[#d4c5a9] hover:bg-[#bfae8d] text-white rounded-full transition-all shadow-md">2026</button>
+        </div>
+
+        <div id="display-area" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p class="col-span-full italic text-gray-400">버튼을 클릭하여 인생의 한 페이지를 펼쳐보세요.</p>
+        </div>
+    </div>
+
+    <script>
+        const records = [
+            { year: 2014, title: "아버님과의 마지막 여정", story: "삶과 죽음 그리고 고통을 견디는 것", emotion: "견디기", photo: "baby.jpg", quote: "때는 반드시 온다" },
+            { year: 2018, title: "어머님과 함께", story: "어머님과 즐거웠던 시간 그리고 간병과 이별", emotion: "❤️ 행복", photo: "airplane.jpg", quote: "남은 시간이 이리 소중할줄 몰랐다" },
+            { year: 2026, title: "형님과 이별", story: "형님이 당부했던것 그래서 새로운 꿈을 찾기", emotion: "😄 기대", photo: "enter.jpg", quote: "방향을 먼저 바꾸면 마음도 바뀐다" },
+            { year: 2026, title: "현재", story: "새로운 출발을 위해 미지의 세계에 도전", emotion: "😅 긴장", photo: "sixth.jpg", quote: "도전으로 인생이 바뀌든 안바뀌든 어쨌든 좋다." }
+        ];
+
+        function displayData(year) {
+            const area = document.getElementById('display-area');
+            const items = records.filter(r => r.year === year);
+            
+            area.innerHTML = items.map(record => `
+                <div class="album-card p-6 rounded-3xl border-2 border-[#e5dcc3]">
+                    <img src="${record.photo}" alt="${record.title}" class="photo-box" onerror="this.src='https://via.placeholder.com/200?text=사진준비중'">
+                    <h2 class="text-xl font-bold text-[#8b7355] mb-2">${record.title} (${record.year})</h2>
+                    <p class="text-sm text-gray-600 mb-4 leading-relaxed">${record.story}</p>
+                    <div class="flex items-center justify-center gap-2 mb-4">
+                        <span class="px-3 py-1 bg-[#f0e6d2] rounded-full text-xs font-semibold text-[#6b5d44]">${record.emotion}</span>
+                    </div>
+                    <p class="text-[#8b7355] italic font-semibold border-t pt-4">"${record.quote}"</p>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

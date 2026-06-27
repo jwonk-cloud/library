@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 기록</title>
+    <!-- 따뜻하고 감성적인 느낌의 구글 폰트 적용 -->
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 기본 스타일 및 색상 설정 */
+        :root {
+            --bg-color: #Fdfbf7; /* 따뜻한 종이 느낌의 배경 */
+            --primary-color: #8c7b6d; /* 부드러운 갈색 */
+            --text-color: #4a413b;
+            --card-bg: #ffffff;
+            --accent-color: #d4a373;
+        }
+
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(#e6ddc5 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .album-container {
+            max-width: 800px;
+            width: 90%;
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-family: 'Nanum Myeongjo', serif;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        header p {
+            color: #7b6f66;
+            font-size: 1.1rem;
+        }
+
+        /* 연도 타임라인 버튼 스타일 */
+        .timeline {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background-color: rgba(140, 123, 109, 0.3);
+            z-index: -1;
+        }
+
+        .year-btn {
+            background-color: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 10px 25px;
+            font-family: 'Gowun Dodum', sans-serif;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .year-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .year-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* 메모리 카드 (폴라로이드 앨범 스타일) */
+        .memory-card {
+            display: none; /* 초기에는 숨김 */
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+            border: 1px solid #eae1d5;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        /* 카드 애니메이션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .photo-frame {
+            background-color: #f4f1ea;
+            padding: 15px 15px 40px 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            transform: rotate(-2deg);
+            transition: transform 0.3s;
+        }
+
+        .photo-frame:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: auto;
+            border-radius: 3px;
+            display: block;
+            min-height: 200px;
+            object-fit: cover;
+            background-color: #ddd;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #d1c7bd;
+            padding-bottom: 10px;
+        }
+
+        .card-header h2 {
+            font-family: 'Nanum Myeongjo', serif;
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .emotion {
+            font-size: 1.5rem;
+            background: #fff3e0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #ffe0b2;
+        }
+
+        .story {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            white-space: pre-line;
+        }
+
+        .quote-box {
+            background-color: rgba(212, 163, 115, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .quote {
+            margin: 0;
+            font-family: 'Nanum Myeongjo', serif;
+            font-style: italic;
+            color: #63564b;
+            font-size: 1.1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="album-container">
+        <header>
+            <h1>🕰️ 나의 기록</h1>
+            <p>소중한 기억의 페이지를 넘겨보세요</p>
+        </header>
+
+        <!-- 연도 버튼이 렌더링 될 영역 -->
+        <div class="timeline" id="timeline"></div>
+
+        <!-- 클릭 시 나타날 추억 카드 영역 -->
+        <div class="memory-card" id="memoryCard"></div>
+    </div>
+
+    <script>
+        // 엑셀에서 추출한 데이터 (이미지는 예시 링크입니다)
+        const memoryData = [
+            { year: 2000, title: "결혼", story: "연애시작", emotion: "😊 설렘", image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80", quote: "새로운 시작" },
+            { year: 2003, title: "첫 아이 출산", story: "어설픈 육아", emotion: "❤", image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=600&q=80", quote: "새로운 시작" },
+            { year: 2008, title: "둘째아이 출산", story: "육아의 연속", emotion: "😄 기대", image: "https://images.unsplash.com/photo-1473830394358-91588751b241?auto=format&fit=crop&w=600&q=80", quote: "도전은 새로운 세상을 연다." },
+            { year: 2012, title: "이사", story: "벌써 6학년", emotion: "😅 긴장", image: "https://images.unsplash.com/photo-1488161628813-04466f872be2?auto=format&fit=crop&w=600&q=80", quote: "경험은 최고의 스승이다." }
+        ];
+
+        const timelineEl = document.getElementById('timeline');
+        const cardEl = document.getElementById('memoryCard');
+
+        // 1. 연도 버튼 생성
+        memoryData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'year-btn';
+            btn.textContent = data.year;
+            
+            // 버튼 클릭 이벤트 설정
+            btn.addEventListener('click', () => {
+                showMemory(data, btn);
+            });
+            
+            timelineEl.appendChild(btn);
+        });
+
+        // 2. 카드를 보여주는 함수
+        function showMemory(data, clickedBtn) {
+            // 모든 버튼의 활성화(active) 상태 해제 후 클릭된 버튼만 활성화
+            document.querySelectorAll('.year-btn').forEach(btn => btn.classList.remove('active'));
+            clickedBtn.classList.add('active');
+
+            // 이미지 오류 시 보여줄 대체 감성 이미지
+            const defaultImage = "https://images.unsplash.com/photo-1519238263530-99eaa112f86e?auto=format&fit=crop&w=600&q=80";
+            
+            // 데이터에 이미지가 있으면 해당 이미지를, 없으면 기본 이미지를 사용
+            const imgSrc = data.image ? data.image : defaultImage;
+
+            // 카드 내용 HTML 구성
+            cardEl.innerHTML = `
+                <div class="photo-frame">
+                    <img src="${imgSrc}" alt="${data.year}년 사진" onerror="this.onerror=null; this.src='${defaultImage}';">
+                </div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <h2>${data.title}</h2>
+                        <span class="emotion">${data.emotion}</span>
+                    </div>
+                    <p class="story">${data.story}</p>
+                    <div class="quote-box">
+                        <p class="quote">" ${data.quote} "</p>
+                    </div>
+                </div>
+            `;
+
+            // 애니메이션 초기화 및 실행
+            cardEl.style.display = 'block';
+            cardEl.style.animation = 'none'; 
+            void cardEl.offsetWidth;         
+            cardEl.style.animation = 'fadeInUp 0.6s ease forwards';
+        }
+
+        // 페이지 로드 시 첫 번째 연도를 자동으로 열어두기
+        setTimeout(() => {
+             const firstBtn = document.querySelector('.year-btn');
+             if(firstBtn) firstBtn.click();
+        }, 100);
+
+    </script>
+</body>
+</html>
