@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 인생 타임머신</title>
+    <style>
+        :root {
+            --warm-bg: #fdf6e3;
+            --card-bg: #ffffff;
+            --text-color: #5d4037;
+            --accent: #d7ccc8;
+        }
+        body {
+            background-color: var(--warm-bg);
+            color: var(--text-color);
+            font-family: 'Pretendard', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 { border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        #year-buttons { margin: 20px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: var(--accent);
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.3s;
+        }
+        button:hover { background: #bcaaa4; transform: translateY(-2px); }
+        .card-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 5px solid var(--accent);
+        }
+        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        .emotion { font-size: 1rem; margin: 10px 0; color: #8d6e63; }
+        .quote { font-style: italic; color: #795548; margin-top: 15px; font-weight: bold; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <h1>나의 인생 타임머신</h1>
+    <div id="year-buttons"></div>
+    <div id="memory-cards" class="card-container"></div>
+
+    <script>
+        // CSV 데이터 기반 배열
+        const rawData = [
+            {year: 2024, title: "새 출발", story: "내 인생 2/3의 시간을 보낸 직장을 나오다", emotion: "😊 설렘", photo: "", quote: "아무 것도 안하면 아무일로 일어나지 않는다."},
+            {year: 2024, title: "산티아고로 떠나다", story: "37일간의 고행이였지만 내안의 평화를 찾고 인생 후반전을 살 에너지를 받았다.", emotion: "❤️ 사랑", photo: "", quote: "인생은 멀리서 보면 희극이지만 가까이서 보면 비극이다."},
+            {year: 2025, title: "텃밭", story: "텃밭을 가꾸며 자연과 함께하다.", emotion: "😄 기대", photo: "", quote: "도전은 새로운 세상을 연다."},
+            {year: "기타", title: "성찰", story: "경험을 통해 한 층 더 성장하다.", emotion: "😅 긴장", photo: "", quote: "경험은 최고의 스승이다."}
+        ];
+
+        const container = document.getElementById('year-buttons');
+        const cardArea = document.getElementById('memory-cards');
+
+        // 연도별 버튼 생성
+        const years = [...new Set(rawData.map(item => item.year))];
+        years.forEach(year => {
+            const btn = document.createElement('button');
+            btn.innerText = (year === "기타" ? "" : year) + (year === "기타" ? "기타" : "년");
+            btn.onclick = () => renderCards(year);
+            container.appendChild(btn);
+        });
+
+        function renderCards(year) {
+            cardArea.innerHTML = '';
+            const filtered = rawData.filter(d => d.year === year);
+            filtered.forEach(data => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                // 이미지 처리: 데이터가 있으면 해당 이미지, 없으면 랜덤 일러스트 URL
+                const imgSrc = data.photo || `https://picsum.photos/300/180?random=${data.title.length}`;
+                
+                card.innerHTML = `
+                    <img src="${imgSrc}" alt="추억 사진">
+                    <h2>${data.title}</h2>
+                    <p>${data.story}</p>
+                    <div class="emotion">${data.emotion}</div>
+                    <div class="quote">"${data.quote}"</div>
+                `;
+                cardArea.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 인생 타임머신</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background: #fdf6e3; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .button-area { margin: 20px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 20px; border: none; background: #d7ccc8; }
+        .card { background: white; padding: 20px; border-radius: 15px; width: 300px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>나의 인생 타임머신</h1>
+    <div class="button-area" id="btns"></div>
+    <div id="display"></div>
+
+    <script>
+        const data = [
+            {year: 2024, title: "새 출발", story: "직장을 나오다", emotion: "😊 설렘", quote: "아무 것도 안하면 아무일로 일어나지 않는다."},
+            {year: 2024, title: "산티아고", story: "37일간의 고행과 평화", emotion: "❤️ 사랑", quote: "인생은 멀리서 보면 희극..."},
+            {year: 2025, title: "텃밭", story: "자연과 함께하다", emotion: "😄 기대", quote: "도전은 새로운 세상을 연다."}
+        ];
+
+        const btns = document.getElementById('btns');
+        const display = document.getElementById('display');
+
+        [...new Set(data.map(d => d.year))].forEach(y => {
+            const b = document.createElement('button');
+            b.innerText = y + "년";
+            b.onclick = () => {
+                display.innerHTML = data.filter(d => d.year === y).map(item => `
+                    <div class="card">
+                        <h3>${item.title}</h3>
+                        <p>${item.story}</p>
+                        <p><strong>감정:</strong> ${item.emotion}</p>
+                        <p><em>${item.quote}</em></p>
+                    </div>
+                `).join('');
+            };
+            btns.appendChild(b);
+        });
+    </script>
+</body>
+</html>
