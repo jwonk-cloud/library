@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 플라멩코 인생 여행기</title>
+    <style>
+        /* 구글 웹폰트 불러오기 (한글 명조체 및 감성 서체) */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Gamja+Flower&family=Nanum+Myeongjo:wght@400;700&display=swap');
+
+        /* 스타일 변수 정의 (강렬하고 매혹적인 플라멩코 테마) */
+        :root {
+            --stage-dark: #0f0504;      /* 깊고 어두운 극장 무대 배경 블랙 */
+            --flamenco-red: #9e0c1b;    /* 정열의 카민 레드 */
+            --flamenco-crimson: #cf1020;/* 스포트라이트를 받는 선명한 크림슨 */
+            --gold-accent: #d4af37;     /* 고급스러운 스페인풍 골드 테두리 */
+            --gold-light: #f3e5ab;      /* 부드러운 골드 셰이드 */
+            --paper-warm: #fffaf0;      /* 무대 조명을 받는 따뜻한 아이보리 양장지 */
+            --text-dark: #2a1512;       /* 가독성 높은 딥 브라운 블랙 */
+            --text-light: #ebd0cc;      /* 어두운 배경 위의 고급스러운 라이트 핑크/베이지 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nanum Myeongjo', serif;
+            background: radial-gradient(circle at center, #1f0b08 0%, var(--stage-dark) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 배경 데코레이션 레이스 패턴 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(212, 175, 55, 0.04) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 헤더 스타일링 (오페라 하우스 커튼 뒤 무대 타이틀 감성) */
+        header {
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 40px;
+            z-index: 10;
+            position: relative;
+        }
+
+        header h1 {
+            font-family: 'Gamja Flower', cursive;
+            font-size: 3.8rem;
+            color: var(--gold-accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-shadow: 0px 4px 10px rgba(0, 0, 0, 0.9), 0px 0px 20px rgba(212, 175, 55, 0.4);
+            animation: pulseTitle 3s infinite alternate;
+        }
+
+        @keyframes pulseTitle {
+            0% { text-shadow: 0px 4px 10px rgba(0, 0, 0, 0.9), 0px 0px 10px rgba(212, 175, 55, 0.3); }
+            100% { text-shadow: 0px 4px 15px rgba(0, 0, 0, 0.9), 0px 0px 30px rgba(212, 175, 55, 0.7); }
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #d1b1ab;
+            letter-spacing: 3px;
+            font-weight: bold;
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* 사운드 활성화 토글 탑 바 */
+        .sound-toggle-bar {
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .sound-btn {
+            background: rgba(158, 12, 27, 0.3);
+            border: 1px solid var(--gold-accent);
+            color: var(--gold-light);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Nanum Myeongjo', serif;
+        }
+
+        .sound-btn:hover {
+            background: var(--flamenco-red);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        /* 골드 테두리 장식 라인 */
+        .header-line {
+            width: 140px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
+            margin: 20px auto 0 auto;
+        }
+
+        /* 타임라인 영역 */
+        .timeline-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 750px;
+            margin-bottom: 45px;
+            padding: 0 10px;
+            z-index: 10;
+        }
+
+        /* 골드 장식 타임라인 스트랩 */
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 40px;
+            right: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold-accent) 20%, var(--gold-accent) 80%, transparent);
+            z-index: 1;
+            transform: translateY(-50%);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+        }
+
+        .timeline-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            overflow-x: auto;
+            scrollbar-width: none; /* 파이어폭스 스크롤 숨김 */
+            padding: 15px 0;
+            gap: 15px;
+        }
+
+        .timeline-container::-webkit-scrollbar {
+            display: none; /* 크롬/사파리 스크롤 숨김 */
+        }
+
+        /* 플라멩코 왁스 씰/장미 느낌의 라운드 버튼 */
+        .year-btn {
+            font-family: 'Gamja Flower', cursive;
+            font-size: 1.7rem;
+            background: radial-gradient(circle at 30% 30%, #300c09, #120302);
+            border: 2px solid var(--gold-accent);
+            color: var(--gold-light);
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(212,175,55,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .year-btn:hover {
+            transform: scale(1.15) translateY(-5px);
+            background: radial-gradient(circle at 30% 30%, var(--flamenco-crimson), #50040a);
+            border-color: #fff;
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(207, 16, 32, 0.5);
+        }
+
+        .year-btn.active {
+            background: radial-gradient(circle at 30% 30%, var(--flamenco-crimson), var(--flamenco-red));
+            border-color: #fff;
+            color: #fff;
+            transform: scale(1.2) translateY(-3px);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.3), 0 10px 25px rgba(207, 16, 32, 0.6);
+        }
+
+        /* 앨범 카드 컨테이너 */
+        .card-container {
+            width: 100%;
+            max-width: 530px;
+            margin-bottom: 70px;
+            z-index: 10;
+        }
+
+        /* 고급 극장 팜플렛 / 액자 프레임 감성 카드 */
+        .memory-card {
+            background: var(--paper-warm);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(42, 21, 18, 0.05);
+            border: 6px double var(--gold-accent); /* 골드 이중 액자 프레임 */
+            padding: 35px;
+            display: none; 
+            animation: cardStageUp 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            position: relative;
+            color: var(--text-dark);
+        }
+
+        /* 플라멩코 장미 수놓은 무늬 씰 데코레이션 */
+        .memory-card::before {
+            content: '💃';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45px;
+            height: 45px;
+            background: var(--flamenco-red);
+            border: 2px solid var(--gold-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 15;
+        }
+
+        /* 카드 등장 특수 효과 */
+        @keyframes cardStageUp {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95) rotate(-1deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+        }
+
+        /* 카드 헤더 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1.5px dashed rgba(166, 43, 43, 0.3);
+            padding-bottom: 18px;
+        }
+
+        .card-year {
+            font-family: 'Gamja Flower', cursive;
+            font-size: 2.3rem;
+            color: var(--flamenco-red);
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+
+        .card-emotion {
+            background-color: #fceeed;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            color: var(--flamenco-red);
+            font-weight: bold;
+            border: 1px solid var(--accent-border);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        /* 카드 제목 */
+        .card-title {
+            font-family: 'Nanum Myeongjo', serif;
+            font-weight: 700;
+            font-size: 1.7rem;
+            color: #120c0b;
+            margin-bottom: 22px;
+            line-height: 1.4;
+            letter-spacing: -0.5px;
+            border-left: 4px solid var(--flamenco-red);
+            padding-left: 12px;
+        }
+
+        /* 폴라로이드 사진 가죽 프레임 스타일 */
+        .card-image-box {
+            width: 100%;
+            height: 350px;
+            background-color: #1a100f;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 12px solid #fff;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 8px 25px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .card-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .card-image-box:hover img {
+            transform: scale(1.08) rotate(1deg); /* 극적인 포커스 효과 */
+        }
+
+        /* 감성 스토리 폰트 및 구조 */
+        .card-story {
+            font-family: 'Nanum Myeongjo', serif;
+            font-size: 1.15rem;
+            line-height: 1.9;
+            color: #3e2a26;
+            margin-bottom: 30px;
+            text-align: justify;
+            white-space: pre-line;
+            padding: 0 5px;
+        }
+
+        /* 플라멩코 무대의 격조 높은 명언 */
+        .card-quote {
+            background-color: #fdf5e6;
+            border-left: 5px solid var(--flamenco-red);
+            padding: 22px;
+            margin: 0;
+            font-style: italic;
+            color: #5c433e;
+            line-height: 1.7;
+            font-size: 1.05rem;
+            border-radius: 0 15px 15px 0;
+            position: relative;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .card-quote::after {
+            content: '”';
+            font-family: 'Cinzel', serif;
+            position: absolute;
+            bottom: -15px;
+            right: 15px;
+            font-size: 4.5rem;
+            color: rgba(158, 12, 27, 0.08);
+            line-height: 1;
+        }
+
+        /* 푸터 장식 */
+        footer {
+            margin-top: auto;
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #9c807b;
+            letter-spacing: 2px;
+            z-index: 10;
+        }
+
+        /* 모바일 최적화 미디어 쿼리 */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2.8rem;
+            }
+
+            .timeline-line {
+                display: none; /* 터치 스크롤에 맞추어 보강 */
+            }
+
+            .timeline-container {
+                justify-content: flex-start;
+                padding: 10px 15px;
+                background-color: rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(212, 175, 55, 0.2);
+                border-radius: 50px;
+            }
+
+            .year-btn {
+                font-size: 1.4rem;
+                width: 65px;
+                height: 65px;
+            }
+
+            .card-image-box {
+                height: 270px;
+            }
+
+            .card-title {
+                font-size: 1.4rem;
+            }
+
+            .card-story {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>나의 플라멩코 인생 여행기</h1>
+        <p>뜨거운 스페인의 전율과 춤으로 가득 찬 추억의 발자취</p>
+        <div class="header-line"></div>
+    </header>
+
+    <!-- 인터랙티브 사운드 기능 제어 -->
+    <div class="sound-toggle-bar">
+        <button class="sound-btn" id="soundBtn" onclick="toggleSound()">
+            <span id="soundIcon">🔊</span> <span id="soundText">무대 박수 소리 켜짐</span>
+        </button>
+    </div>
+
+    <!-- 타임라인 조작기 -->
+    <div class="timeline-wrapper">
+        <div class="timeline-line"></div>
+        <div class="timeline-container" id="timelineButtons"></div>
+    </div>
+
+    <!-- 추억 카드 출력판 -->
+    <div class="card-container">
+        <div class="memory-card" id="memoryCard">
+            <div class="card-header">
+                <span class="card-year" id="resYear">2007</span>
+                <span class="card-emotion" id="resEmotion">😊 설렘</span>
+            </div>
+            <h2 class="card-title" id="resTitle">첫 만남</h2>
+            <div class="card-image-box">
+                <!-- 사용자의 실제 이미지 파일명을 렌더링하고, 미발견 시 감명 깊고 화려한 고품질 백업 춤사위 이미지로 대체 -->
+                <img id="resImg" src="" alt="추억 사진" onerror="handleImageError(this)">
+            </div>
+            <p class="card-story" id="resStory">이야기가 들어가는 자리입니다.</p>
+            <blockquote class="card-quote" id="resQuote">명언이 들어가는 자리입니다.</blockquote>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 나의 플라멩코 인생 여행기 • 뜨거운 올레(Olé!) 소리와 함께 당신의 춤을 응원합니다.</p>
+    </footer>
+
+    <script>
+        // 업로드해주신 Excel 데이터를 완벽히 매칭한 데이터 구조 (최종 수정 반영)
+        const memoryData = [
+            {
+                year: 2007,
+                title: '첫 만남',
+                story: '플라멩코를 만나다 ',
+                emotion: '😊 설렘',
+                imgFile: '2007.jpg',
+                // 플라멩코 춤선과 드레스의 매혹적인 움직임
+                backupImg: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800',
+                quote: '모든 시작은 설렘이었다.'
+            },
+            {
+                year: 2011,
+                title: '세비야를 가다',
+                story: '새로운 꿈을 향해 내딛었다',
+                emotion: '❤️ 행복',
+                imgFile: '2011.jpg',
+                // 안달루시아 세비야 광장의 정취와 댄서의 실루엣
+                backupImg: 'https://images.unsplash.com/photo-1558008258-3256797b43f3?auto=format&fit=crop&q=80&w=800',
+                quote: '모든 것이 마냥 좋기만 했다.'
+            },
+            {
+                year: 2015,
+                title: '무용수 안주희',
+                story: '내이름을 걸고 춤추기 시작했다',
+                emotion: '😄 기대',
+                imgFile: '2015.jpg',
+                // 조명 아래 정열을 쏟아내는 아름다운 플라멩코 댄서
+                backupImg: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+                quote: '도전은 새로운 세상을 연다.'
+            },
+            {
+                year: 2021,
+                title: '스튜디오루나',
+                story: '대구와 서울에 플라멩코 스튜디오를 열다',
+                emotion: '😅 긴장',
+                imgFile: '2021.jpg',
+                // 따뜻한 조명 아래 마룻바닥과 춤을 준비하는 스튜디오 무드
+                backupImg: 'https://images.unsplash.com/photo-1508847154043-be12a327dc6f?auto=format&fit=crop&q=80&w=800',
+                quote: '그들 또한 나의 스승이다.'
+            },
+            {
+                year: 2026,
+                title: '플라멩코 굿판',
+                story: '플라멩코? 굿? 내가 딛고 있는 이땅에서 나의 플라멩코 씨앗을 틔어본다',
+                emotion: '집중',
+                imgFile: '2026.jpg',
+                // 동양의 기운과 열정적인 붉은 춤사위가 어우러진 신비한 예술적 공연
+                backupImg: 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&q=80&w=800',
+                quote: '두려움은 우리가 올바른 방향으로 가고 있다는 신호다'
+            }
+        ];
+
+        // 가상 오디오 효과 및 설정
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            const text = document.getElementById('soundText');
+            if (soundEnabled) {
+                icon.textContent = '🔊';
+                text.textContent = '무대 박수 소리 켜짐';
+            } else {
+                icon.textContent = '🔇';
+                text.textContent = '소리 꺼짐';
+            }
+        }
+
+        // Web Audio API를 활용한 가상 'Palmas'(손뼉/캐스터네츠) 소리 합성 엔진
+        function playFlamencoSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // 오디오 콘텍스트가 정지 상태일 시 재개
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                // 1. 단단한 목재 캐스터네츠/나무 박수 타격음 합성
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.1);
+
+                // 고음역대 노이즈처럼 맑게 걸러내어 타격감 부여
+                filter.type = 'bandpass';
+                filter.frequency.value = 1000;
+                filter.Q.value = 1.2;
+
+                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+
+                // 2. 약간의 딜레이를 두고 울리는 플라멩코 손뼉 잔향 (두 손바닥의 마찰음)
+                setTimeout(() => {
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc2.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.08);
+
+                    gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.start();
+                    osc2.stop(audioCtx.currentTime + 0.1);
+                }, 40);
+
+            } catch (e) {
+                console.log("Audio play blocked or not supported by browser security policy.");
+            }
+        }
+
+        const buttonsContainer = document.getElementById('timelineButtons');
+        const card = document.getElementById('memoryCard');
+
+        // 카드 하부 바인딩 DOM 정의
+        const resYear = document.getElementById('resYear');
+        const resEmotion = document.getElementById('resEmotion');
+        const resTitle = document.getElementById('resTitle');
+        const resImg = document.getElementById('resImg');
+        const resStory = document.getElementById('resStory');
+        const resQuote = document.getElementById('resQuote');
+
+        // 1. 연도 버튼 동적 선언
+        memoryData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'year-btn';
+            btn.textContent = data.year;
+            btn.onclick = () => {
+                playFlamencoSound();
+                showMemory(data, btn);
+            };
+            buttonsContainer.appendChild(btn);
+
+            // 초기 페이지 진입 시 2007년 카드 활성화
+            if(index === 0) {
+                showMemory(data, btn);
+            }
+        });
+
+        // 2. 이미지 에러 핸들러 (사용자 로컬 사진 파일이 미처 폴더에 담기지 않았을 때, 완벽히 테마에 맞는 고화질 플라멩코 백업 이미지로 보완)
+        function handleImageError(imageElement) {
+            const currentYear = parseInt(resYear.textContent);
+            const foundData = memoryData.find(d => d.year === currentYear);
+            if (foundData && imageElement.src !== foundData.backupImg) {
+                imageElement.src = foundData.backupImg;
+            }
+        }
+
+        // 3. 타임라인 체인징 핸들러 함수
+        function showMemory(data, targetButton) {
+            // 버튼 액티브 클래스 조율
+            document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+            targetButton.classList.add('active');
+
+            // 극적인 팜플렛 전환 효과를 위해 임시 숨김 후 표시
+            card.style.display = 'none';
+            
+            // 데이터 매칭 및 감정 라벨 꾸미기
+            resYear.textContent = data.year;
+            resEmotion.textContent = data.emotion;
+            resTitle.textContent = data.title;
+            resStory.textContent = data.story;
+            resQuote.textContent = `“ ${data.quote} ”`;
+            
+            // 사용자의 로컬 전용 이미지 주소 설정 (예: 2007.jpg, 2026.jpg 등)
+            resImg.src = data.imgFile;
+
+            // 브라우저 렌더링 주기에 맞춰 스포트라이트 열기 애니메이션 효과 재실행
+            setTimeout(() => {
+                card.style.display = 'block';
+            }, 25);
+        }
+    </script>
+</body>
+</html>
