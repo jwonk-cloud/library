@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronicle of My Son</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f7f3e8;
+            --point-color: #d18d6a;
+            --text-main: #4a3f35;
+            --text-sub: #7a6a5a;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            font-family: 'Gowun Dodum', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header { text-align: center; margin-top: 50px; margin-bottom: 30px; }
+        header h1 { font-family: 'Nanum Myeongjo', serif; font-size: 2.5rem; color: var(--point-color); margin-bottom: 10px; }
+        header p { color: var(--text-sub); font-size: 1.1rem; }
+
+        .year-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px; max-width: 800px; }
+
+        .year-btn {
+            background-color: #fff;
+            border: 2px solid var(--point-color);
+            color: var(--point-color);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-family: 'Gowun Dodum', sans-serif;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .year-btn:hover, .year-btn.active {
+            background-color: var(--point-color);
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        .card-container { width: 100%; max-width: 600px; display: none; opacity: 0; transform: translateY(20px); transition: all 0.5s ease-in-out; padding: 0 20px; box-sizing: border-box; }
+        .card-container.show { display: block; opacity: 1; transform: translateY(0); }
+        .album-card { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+
+        .polaroid { background-color: #fff; padding: 15px 15px 40px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 25px; transform: rotate(-2deg); }
+        .polaroid img { width: 100%; height: 350px; object-fit: cover; background-color: #ececec; }
+        .polaroid-title { text-align: center; font-family: 'Nanum Myeongjo', serif; font-weight: bold; margin-top: 10px; }
+
+        .content-area { text-align: center; }
+        .emotion-badge { display: inline-block; background-color: #f0e6d2; padding: 5px 15px; border-radius: 20px; margin-bottom: 15px; }
+        .story { font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px; }
+        .quote { font-family: 'Nanum Myeongjo', serif; color: var(--text-sub); padding: 15px; border-top: 1px dashed #dcb8a3; }
+        
+        #music-notice { margin-top: 20px; font-size: 0.9rem; color: #888; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Chronicle of My Son</h1>
+        <p>기억하고 싶은 순간으로 여행을 떠나보세요.</p>
+        <div id="music-notice">화면을 클릭하면 음악이 재생됩니다.</div>
+    </header>
+
+    <div class="year-container" id="yearButtons"></div>
+    <div class="card-container" id="cardContainer">
+        <div class="album-card" id="albumCard"></div>
+    </div>
+
+    <!-- 오디오 태그: 업로드하신 파일 적용 -->
+    <audio id="bgMusic" loop>
+        <source src="Alan Walker - Faded.mp3" type="audio/mpeg">
+        브라우저가 오디오 재생을 지원하지 않습니다.
+    </audio>
+
+    <script>
+        const memoryData = [
+            { year: 2010, title: "As Baby", story: "세상에 나를 선보이다", emotion: "😊 설렘", image: "baby.jpg", fallback: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=800&q=80", quote: "모든 시작은 설렘이었다." },
+            { year: 2014, title: "As Kid", story: "모든 것이 새로왔다", emotion: "❤️ 행복", image: "kid.jpg", fallback: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80", quote: "모든 것이 마냥 좋기만 했다." },
+            { year: 2017, title: "As Child", story: "학교라는 공간, 설렘과 두려움이 공존했다", emotion: "😄 기대", image: "enter.jpg", fallback: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80", quote: "도전은 새로운 세상을 연다." },
+            { year: 2023, title: "As Adolescent", story: "몸과 마음이 하루하루 달라진다", emotion: "😅 긴장", image: "sixth.jpg", fallback: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80", quote: "경험은 최고의 스승이다." }
+        ];
+
+        const yearButtonsContainer = document.getElementById('yearButtons');
+        const cardContainer = document.getElementById('cardContainer');
+        const albumCard = document.getElementById('albumCard');
+        const bgMusic = document.getElementById('bgMusic');
+
+        // 첫 클릭 시 음악 시작
+        document.body.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                document.getElementById('music-notice').innerText = "음악이 재생 중입니다 🎵";
+            }
+        }, { once: true });
+
+        memoryData.forEach(data => {
+            const btn = document.createElement('button');
+            btn.classList.add('year-btn');
+            btn.innerText = Math.floor(data.year);
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                showMemoryCard(data);
+            });
+            yearButtonsContainer.appendChild(btn);
+        });
+
+        function showMemoryCard(data) {
+            cardContainer.classList.remove('show');
+            setTimeout(() => {
+                albumCard.innerHTML = `
+                    <div class="polaroid">
+                        <img src="${data.image}" alt="기억의 사진" onerror="this.onerror=null; this.src='${data.fallback}';">
+                        <div class="polaroid-title">${data.title} (${Math.floor(data.year)}년)</div>
+                    </div>
+                    <div class="content-area">
+                        <div class="emotion-badge">${data.emotion}</div>
+                        <div class="story">${data.story}</div>
+                        <div class="quote">"${data.quote}"</div>
+                    </div>
+                `;
+                cardContainer.classList.add('show');
+            }, 150);
+        }
+    </script>
+</body>
+</html>
