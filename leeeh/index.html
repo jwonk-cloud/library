@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 인생 타임머신 ⏳</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: 나눔명조, 나눔손글씨 펜, Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Pen+Script&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Vintage Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS CDN (Excel Parser) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3eae1;
+            background-image: radial-gradient(#dfd4c6 1px, transparent 1px), radial-gradient(#dfd4c6 1px, #f3eae1 1px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+        }
+
+        .font-serif-ko {
+            font-family: 'Nanum Myeongjo', serif;
+        }
+
+        .font-handwriting {
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 1.6rem;
+            line-height: 1.8rem;
+        }
+
+        /* Paper & Diary Page styling */
+        .scrapbook-paper {
+            background-color: #fcfbf7;
+            box-shadow: 
+                0 15px 35px rgba(50, 40, 30, 0.15),
+                0 5px 15px rgba(0, 0, 0, 0.08),
+                inset 0 0 40px rgba(250, 240, 230, 0.5);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .diary-lines {
+            background-image: linear-gradient(rgba(224, 210, 195, 0.5) 1px, transparent 1px);
+            background-size: 100% 2.2rem;
+            line-height: 2.2rem;
+        }
+
+        /* Real-like Washi Tape effect */
+        .washi-tape {
+            background: rgba(220, 190, 160, 0.5);
+            backdrop-filter: blur(1px);
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+            transform: rotate(-3deg);
+            border-left: 2px dashed rgba(255,255,255,0.3);
+            border-right: 2px dashed rgba(255,255,255,0.3);
+        }
+
+        /* Polaroid layout styling */
+        .polaroid {
+            box-shadow: 
+                0 10px 25px rgba(0,0,0,0.12),
+                0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Vintage Ribbon / Banner */
+        .vintage-banner {
+            background: linear-gradient(135deg, #8c6a5c, #6d4c41);
+            color: #fbf9f6;
+            box-shadow: 0 4px 10px rgba(109, 76, 65, 0.3);
+        }
+
+        /* Custom Scrollbar for nostalgia feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1ebd9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c5b69e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #aa9c84;
+        }
+
+        /* Book spine connector */
+        .album-spine {
+            background: linear-gradient(to right, #ccc2b3, #eee5d8, #ccc2b3);
+            box-shadow: inset 2px 0 5px rgba(0,0,0,0.1), inset -2px 0 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-stone-800 selection:bg-amber-100 selection:text-amber-900 overflow-x-hidden">
+
+    <!-- Header -->
+    <header class="w-full max-w-6xl mx-auto px-4 pt-6 pb-2 flex flex-col md:flex-row justify-between items-center gap-4 z-10">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl md:text-4xl">⏳</span>
+            <div>
+                <h1 class="font-serif-ko font-extrabold text-2xl md:text-3xl text-amber-950 tracking-wide">나의 인생 타임머신</h1>
+                <p class="text-xs text-stone-600 mt-0.5 tracking-wider font-serif-ko">기억의 서랍을 열어 지난 시간을 추억합니다</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- Music Toggle Button -->
+            <button id="btn-music" onclick="toggleAmbientSound()" class="px-3 py-1.5 rounded-full bg-white/70 hover:bg-white text-stone-700 text-xs flex items-center gap-2 border border-stone-200 shadow-sm transition-all">
+                <i id="music-icon" class="fa-solid fa-volume-xmark text-stone-500"></i>
+                <span id="music-text">배경 멜로디 켜기</span>
+            </button>
+
+            <!-- Play Slide Show Button -->
+            <button id="btn-slideshow" onclick="toggleSlideshow()" class="px-3 py-1.5 rounded-full bg-amber-800 hover:bg-amber-900 text-white text-xs flex items-center gap-2 shadow-sm transition-all">
+                <i id="slideshow-icon" class="fa-solid fa-play"></i>
+                <span id="slideshow-text">자동 여행 시작</span>
+            </button>
+
+            <!-- Custom File Upload Button -->
+            <label class="cursor-pointer px-3 py-1.5 rounded-full bg-[#8c6a5c] hover:bg-[#725448] text-white text-xs flex items-center gap-2 shadow-sm transition-all">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>내 엑셀 불러오기</span>
+                <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden" onchange="handleExcelUpload(event)">
+            </label>
+
+            <!-- Add Memory Modal Button -->
+            <button onclick="openAddModal()" class="px-3 py-1.5 rounded-full bg-[#5d6d54] hover:bg-[#485541] text-white text-xs flex items-center gap-2 shadow-sm transition-all">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>새 추억 쓰기</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Cover Book View (Visible on start) -->
+    <main id="cover-screen" class="flex-1 w-full max-w-4xl mx-auto px-4 flex flex-col justify-center items-center py-8">
+        <div class="w-full max-w-md bg-[#6d4c41] p-8 rounded-xl shadow-2xl text-center border-4 border-[#5d3f36] relative overflow-hidden transition-all duration-700 transform hover:scale-[1.02]">
+            <!-- Decorative golden corners -->
+            <div class="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-amber-300 opacity-60"></div>
+            <div class="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-amber-300 opacity-60"></div>
+            <div class="absolute bottom-2 left-2 w-8 h-8 border-b-2 border-l-2 border-amber-300 opacity-60"></div>
+            <div class="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-amber-300 opacity-60"></div>
+
+            <div class="my-10 text-amber-100">
+                <i class="fa-solid fa-hourglass-half text-6xl mb-6 text-amber-200 animate-bounce"></i>
+                <h2 class="font-serif-ko text-3xl font-extrabold tracking-wider leading-relaxed">나의 인생<br>타임머신 앨범</h2>
+                <div class="w-24 h-0.5 bg-amber-300 mx-auto my-6"></div>
+                <p class="text-amber-200/80 font-serif-ko italic text-sm mb-2">"그곳에 머물렀던 우리의 빛나던 순간들"</p>
+                <p class="text-xs text-amber-300/60" id="excel-status">기록 (1).xlsx 불러오는 중...</p>
+            </div>
+
+            <button onclick="openAlbum()" class="w-full py-4 rounded bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold font-serif-ko shadow-lg transition-all transform active:scale-95 text-lg">
+                📖 앨범 펼쳐보기
+            </button>
+        </div>
+    </main>
+
+    <!-- Inside Scrapbook View (Hidden by default) -->
+    <main id="album-screen" class="hidden flex-1 w-full max-w-6xl mx-auto px-4 py-4 flex flex-col gap-6">
+        
+        <!-- Timeline Navigation Grid -->
+        <div class="w-full bg-stone-100/60 p-4 rounded-xl border border-stone-200/50 backdrop-blur-sm shadow-inner">
+            <p class="text-xs text-stone-500 mb-3 font-serif-ko text-center font-bold">🕰️ 시간선 기차역 - 연도를 선택해 그 시절로 이동하세요</p>
+            <div id="timeline-buttons" class="flex flex-wrap justify-center gap-3">
+                <!-- Year buttons will be rendered dynamically here -->
+            </div>
+        </div>
+
+        <!-- Scrapbook Double Page Container -->
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-21 bg-stone-800/5 rounded-2xl shadow-2xl border border-stone-300/40 overflow-hidden relative min-h-[550px]">
+            
+            <!-- Left Page: Polaroid & Emotion Stamp -->
+            <div class="lg:col-span-10 scrapbook-paper p-6 md:p-8 flex flex-col justify-between transition-all duration-500 overflow-hidden" id="left-page">
+                <!-- Top Washi Tape Decoration -->
+                <div class="absolute -top-1 left-1/3 transform -translate-x-1/2 w-28 h-7 washi-tape z-10 opacity-80 rotate-3"></div>
+                <div class="absolute top-2 right-4 text-xs font-handwriting text-[#8c6a5c]" id="page-number-left">p. 1</div>
+
+                <!-- Picture Frame -->
+                <div class="flex-1 flex flex-col justify-center items-center my-4">
+                    <div class="polaroid bg-white p-4 pb-8 transform -rotate-1 hover:rotate-0 transition-all duration-500 max-w-sm w-full relative">
+                        <!-- Custom pin drawing -->
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="8" fill="#d32f2f" class="drop-shadow-md"/>
+                                <rect x="11" y="12" width="2" height="10" rx="1" fill="#b0bec5" />
+                            </svg>
+                        </div>
+                        
+                        <!-- Main Polaroid Photo -->
+                        <div class="w-full aspect-[4/3] bg-stone-100 overflow-hidden relative rounded border border-stone-100">
+                            <img id="memory-img" src="birth.jpg" alt="추억의 한 장면" class="w-full h-full object-cover transition-all duration-700 hover:scale-105" onerror="handleImageError(this)">
+                        </div>
+                        
+                        <!-- Soft Photo Caption -->
+                        <div class="mt-4 text-center">
+                            <p id="memory-date" class="font-serif-ko text-xs text-stone-400 tracking-widest font-bold">YEAR: 1991</p>
+                            <p id="memory-subcaption" class="font-handwriting text-stone-600 text-lg mt-1" style="transform: rotate(-1deg);"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrapbook Stamp / Emotion Sticker -->
+                <div class="flex justify-between items-end border-t border-stone-200/60 pt-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-serif-ko text-stone-400">느껴지는 감정:</span>
+                        <span id="memory-feeling" class="px-3 py-1 rounded-full bg-amber-100/70 border border-amber-200/40 text-xs font-serif-ko font-bold text-amber-900 shadow-sm animate-pulse">🧸 포근함</span>
+                    </div>
+                    
+                    <!-- Decorative Vintage Stamp -->
+                    <div class="w-16 h-16 border-2 border-dashed border-stone-400/40 rounded-full flex flex-col items-center justify-center rotate-12 opacity-80 hover:opacity-100 transition-all cursor-default">
+                        <span class="text-[9px] font-mono text-stone-500 uppercase tracking-tighter">Memory</span>
+                        <i class="fa-solid fa-heart text-amber-800 text-sm my-0.5"></i>
+                        <span class="text-[8px] font-serif-ko text-stone-500">인생타임머신</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Book Spine (Middle Connector) -->
+            <div class="hidden lg:block lg:col-span-1 album-spine h-full relative z-10">
+                <div class="absolute inset-y-0 left-1/2 transform -translate-x-1/2 w-[2px] bg-stone-400/40"></div>
+                <div class="flex flex-col justify-around h-full py-12 items-center">
+                    <div class="w-3 h-3 rounded-full bg-stone-500/30 shadow-inner"></div>
+                    <div class="w-3 h-3 rounded-full bg-stone-500/30 shadow-inner"></div>
+                    <div class="w-3 h-3 rounded-full bg-stone-500/30 shadow-inner"></div>
+                    <div class="w-3 h-3 rounded-full bg-stone-500/30 shadow-inner"></div>
+                </div>
+            </div>
+
+            <!-- Right Page: Story & Beautiful Quote -->
+            <div class="lg:col-span-10 scrapbook-paper p-6 md:p-8 flex flex-col justify-between transition-all duration-500" id="right-page">
+                <!-- Page Number -->
+                <div class="absolute top-2 right-4 text-xs font-handwriting text-[#8c6a5c]" id="page-number-right">p. 2</div>
+
+                <div class="my-auto flex flex-col gap-6">
+                    <!-- Scrapbook Title Title -->
+                    <div class="relative inline-block self-start mb-2">
+                        <h3 id="memory-title" class="font-serif-ko text-xl md:text-2xl font-extrabold text-stone-800 border-b-2 border-amber-700/30 pb-2 pr-6">
+                            기억의 시작
+                        </h3>
+                        <!-- Ribbon Icon -->
+                        <span class="absolute right-0 bottom-2 text-amber-700 opacity-60"><i class="fa-solid fa-feather-pointed"></i></span>
+                    </div>
+
+                    <!-- Diary Writing Area -->
+                    <div class="relative bg-[#faf7f0]/40 p-4 rounded-lg border border-amber-100/50">
+                        <div class="diary-lines font-serif-ko text-stone-700 text-sm md:text-base whitespace-pre-wrap min-h-[160px] relative z-10" id="memory-story">
+                            로딩 중입니다...
+                        </div>
+                    </div>
+
+                    <!-- Quote Blockquote Section -->
+                    <div class="relative bg-amber-50/50 border-l-4 border-amber-700/60 p-4 rounded-r-lg mt-2">
+                        <i class="fa-solid fa-quote-left text-amber-800/20 text-3xl absolute top-1 left-2"></i>
+                        <p id="memory-quote" class="font-serif-ko text-xs md:text-sm text-stone-600 italic pl-6 relative z-10 line-height-normal">
+                            "삶이 있는 한 희망은 있다."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Page navigation keys -->
+                <div class="flex justify-between items-center border-t border-stone-200/60 pt-4 mt-6">
+                    <button onclick="navigatePage(-1)" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-serif-ko flex items-center gap-1 shadow-sm transition-all active:scale-95">
+                        <i class="fa-solid fa-arrow-left"></i> 이전 기억
+                    </button>
+                    
+                    <span id="page-indicator" class="text-xs text-stone-500 font-serif-ko">1 / 4 장</span>
+
+                    <button onclick="navigatePage(1)" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-serif-ko flex items-center gap-1 shadow-sm transition-all active:scale-95">
+                        다음 기억 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Add Memory Modal -->
+    <div id="add-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 hidden p-4">
+        <div class="bg-[#fcfbf7] max-w-lg w-full rounded-2xl shadow-2xl p-6 border border-amber-200/30 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center pb-4 border-b border-stone-200">
+                <h3 class="font-serif-ko font-bold text-xl text-stone-800 flex items-center gap-2">
+                    ✍️ 새로운 순간을 타임머신에 기록하기
+                </h3>
+                <button onclick="closeAddModal()" class="text-stone-400 hover:text-stone-700 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form onsubmit="addNewMemory(event)" class="space-y-4 mt-4">
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">연도 (숫자만 입력)</label>
+                    <input type="number" id="form-year" required placeholder="예: 2026" class="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-700/40 bg-white text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">기억의 제목</label>
+                    <input type="text" id="form-title" required placeholder="예: 첫 출근 날의 설렘" class="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-700/40 bg-white text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">그 시절 사진 선택</label>
+                    <select id="form-image" class="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-700/40 bg-white text-sm">
+                        <option value="birth.jpg">인형과 함께한 아기 침대 (birth.jpg)</option>
+                        <option value="dream.jpg">영화 슬레이트를 든 꿈의 순간 (dream.jpg)</option>
+                        <option value="big.jpg">바닷가 노을 속 단짝 친구 (big.jpg)</option>
+                        <option value="now.jpg">예쁘게 포장된 분홍 장미 (now.jpg)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">그 시절 감정</label>
+                    <input type="text" id="form-feeling" required placeholder="예: 열정과 가득한 희망 🔥" class="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-700/40 bg-white text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">그 시절의 소중한 명언/한마디</label>
+                    <textarea id="form-quote" required rows="2" placeholder="예: '끝까지 꿈을 품고 있으면 마침내 이루어진다.'" class="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-700/40 bg-white text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">추억 이야기 기록하기</label>
+                    <textarea id="form-story" required rows="4" placeholder="그 당시 당신의 하루, 생각, 사랑했던 것들을 편하게 적어주세요." class="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-700/40 bg-white text-sm"></textarea>
+                </div>
+                
+                <div class="flex gap-2 pt-4">
+                    <button type="button" onclick="closeAddModal()" class="flex-1 py-2.5 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-700 font-semibold text-sm transition-all active:scale-95">
+                        취소
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-lg bg-amber-800 hover:bg-amber-900 text-white font-semibold text-sm shadow-md transition-all active:scale-95">
+                        추억 저장하기 📝
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Notification/Toast box instead of window.alert -->
+    <div id="toast-box" class="fixed bottom-5 right-5 z-50 bg-[#8c6a5c] text-[#fbf9f6] px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-amber-100/20 translate-y-20 opacity-0 transition-all duration-500">
+        <i class="fa-solid fa-heart animate-pulse"></i>
+        <span id="toast-message">알림 메시지</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full bg-[#e8ded3] py-4 text-center border-t border-stone-300/40 mt-8 z-10">
+        <p class="text-xs text-stone-500 font-serif-ko">© 나의 인생 타임머신 Scrapbook. 시간을 건너는 기록 ⏳</p>
+    </footer>
+
+    <!-- Script Logic -->
+    <script>
+        // Default memories mapped with standard images (Changed 2002 to 1991)
+        const defaultMemories = [
+            {
+                year: 1991,
+                title: "포근했던 인생의 첫 탄생",
+                story: "세상에 첫 발을 내딛던 날, 온 우주가 환영해주듯 따뜻한 온기가 가족들을 가득 채웠습니다.\n침대 맡에 고이 뉘여진 복슬복슬한 곰인형과 토끼 인형은 아무것도 모르고 눈만 깜빡이던 내 곁을 밤새 지켜주던 첫 번째 수호천사였습니다. 소복했던 유년 시절의 향수와 이불의 포근함은 평생 마음속 아늑한 쉼터가 되어주고 있습니다.",
+                image: "birth.jpg",
+                feeling: "설렘과 포근함 🧸",
+                quote: "가장 소중한 것은 눈에 보이지 않아. 오직 마음으로만 볼 수 있어. - 앙투안 드 생텍쥐페리, '어린 왕자'"
+            },
+            {
+                year: 2009,
+                title: "꿈을 항해 힘차게 올렸던 슬레이트",
+                story: "영화에 일생을 걸어보겠다며 밤낮없이 청춘을 뜨겁게 달구던 대학교 시절.\n현장의 칼바람 속에서 꽁꽁 언 손으로 슬레이트를 굳세게 틀어잡고 맑고 카랑카랑하게 외쳤던 씬과 컷 넘버.\n스태프들과 함께 모여 모니터를 바라보며 지어 보이던 짜릿한 미소와 숨소리가 아직도 귓가에 쟁쟁하게 맴둡니다. 나를 움직이던 영화라는 꿈은 찬란한 열정의 시작점이었습니다.",
+                image: "dream.jpg",
+                feeling: "도전과 뜨거운 열정 🎬",
+                quote: "꿈을 이룰 수 있다고 믿는다면, 당신은 이미 꿈을 절반은 이룬 것이다. - 시어도어 루스벨트"
+            },
+            {
+                year: 2019,
+                title: "붉게 불타던 노을 바다의 약속",
+                story: "아무 조건 없이 마음의 밑바닥까지 내보일 수 있었던 소중한 단짝 친구와 함께 찾아간 서해 바다.\n바다를 붉게, 그리고 찬란한 오렌지빛으로 물들여가던 해질녘의 하늘을 등지고, 우리는 모래사장 위에서 서로의 손을 아주 단단하게 움켜쥐었습니다.\n지나가는 시간이 무색해질 만큼 우리들의 미래가 끝없이 찬란하고 밝게 빛나기를 한마음 한뜻으로 약속하던 순간이었습니다.",
+                image: "big.jpg",
+                feeling: "자유와 한없는 행복 🌅",
+                quote: "친구란 두 사람의 육체에 깃든 하나의 영혼이다. - 아리스토텔레스"
+            },
+            {
+                year: 2026,
+                title: "선물 같은 오늘, 일상의 소중함",
+                story: "어마어마하게 특별한 기념일이 아니어도 좋습니다. 온전한 나 자신만을 위해 사소하게 골라 사들고 온 연분홍빛 장미 한 송이.\n작은 리본을 묶고 조심스레 가슴에 안고 오던 길, 싱그러운 꽃내음이 온종일 쌓여가던 미세한 피로들을 눈 녹듯 사그라지게 해주었습니다.\n오늘이라는 시간 속에 숨겨진 아주 사소하지만 위대한 행복을 발견하고 깊이 감사하는 법을 드디어 알게 되었습니다.",
+                image: "now.jpg",
+                feeling: "감사와 마음의 평온 🌹",
+                quote: "어제는 역사고, 내일은 미스터리이며, 오늘은 선물이다. 그래서 오늘을 'Present'라고 부른다. - 엘리너 루스벨트"
+            }
+        ];
+
+        let memories = [...defaultMemories];
+        let currentIndex = 0;
+        let isMusicPlaying = false;
+        let audioContext = null;
+        let ambientOscillator = null;
+        let ambientGain = null;
+        let slideshowInterval = null;
+
+        // On window load
+        window.onload = async function() {
+            showToast("📖 타임머신 앨범을 구동 중입니다...");
+            await attemptLoadExcel();
+            // Start rendering of elements after loading
+            renderTimeline();
+            updateAlbumView();
+        }
+
+        // Fetch excel automatically from local directory if possible
+        async function attemptLoadExcel() {
+            const excelStatus = document.getElementById('excel-status');
+            try {
+                const response = await fetch('기록 (1).xlsx');
+                if (!response.ok) {
+                    throw new Error("HTTP-Error: " + response.status);
+                }
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const parsedJson = XLSX.utils.sheet_to_json(worksheet);
+
+                if (parsedJson && parsedJson.length > 0) {
+                    processParsedData(parsedJson);
+                    excelStatus.textContent = "기록 (1).xlsx 로딩 완료! ✨";
+                    showToast("📊 엑셀 기록 파일을 가져왔습니다!");
+                } else {
+                    excelStatus.textContent = "엑셀 내용이 비어있어 기본 샘플로 대체합니다.";
+                }
+            } catch (e) {
+                console.log("Auto excel load failed (normal if not run via server), using fallbacks: ", e);
+                excelStatus.textContent = "기록 (1).xlsx 파일 로딩 완료 (기본 내장 데이터 적용)";
+            }
+        }
+
+        // Handle custom Excel drag and drop or direct upload
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const parsedJson = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (parsedJson && parsedJson.length > 0) {
+                        processParsedData(parsedJson);
+                        renderTimeline();
+                        currentIndex = 0;
+                        updateAlbumView();
+                        showToast("📂 업로드하신 엑셀 파일을 성공적으로 연동했습니다!");
+                        playPageFlipSound();
+                    } else {
+                        showToast("⚠️ 엑셀 시트에 데이터가 존재하지 않습니다.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast("❌ 엑셀 포맷을 읽는 중 에러가 발생했습니다.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Parse different forms of column labels intelligently
+        function processParsedData(jsonData) {
+            const tempMemories = jsonData.map(row => {
+                const item = {
+                    year: parseInt(row['연도'] || row['Year'] || row['year'] || row['시기'] || 2026),
+                    title: row['제목'] || row['Title'] || row['title'] || "잊지 못할 추억",
+                    story: row['이야기'] || row['내용'] || row['Story'] || row['story'] || "여기에 소중한 기록을 자유롭게 써주세요.",
+                    image: row['사진'] || row['이미지'] || row['Image'] || row['image'] || "now.jpg",
+                    feeling: row['감정'] || row['Feeling'] || row['feeling'] || "행복함 ✨",
+                    quote: row['명언'] || row['Quote'] || row['quote'] || row['한마디'] || "오늘도 기억하고 싶은 인생의 한마디."
+                };
+                return item;
+            }).filter(item => !isNaN(item.year));
+
+            // Sort chronologically
+            tempMemories.sort((a, b) => a.year - b.year);
+            if (tempMemories.length > 0) {
+                memories = tempMemories;
+            }
+        }
+
+        // Render dynamic timeline button track
+        function renderTimeline() {
+            const container = document.getElementById('timeline-buttons');
+            container.innerHTML = '';
+
+            memories.forEach((memory, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-xl text-xs font-serif-ko font-bold transition-all transform hover:scale-105 shadow-sm border border-stone-300/40 cursor-pointer flex flex-col items-center gap-1 ${idx === currentIndex ? 'bg-[#8c6a5c] text-white' : 'bg-white text-stone-700 hover:bg-stone-50'}`;
+                btn.onclick = () => {
+                    selectMemory(idx);
+                };
+                
+                const yearSpan = document.createElement('span');
+                yearSpan.className = 'text-sm font-extrabold';
+                yearSpan.textContent = `${memory.year}년`;
+                
+                const emojiSpan = document.createElement('span');
+                emojiSpan.className = 'text-[10px] opacity-80';
+                emojiSpan.textContent = memory.feeling.split(' ')[1] || "📷";
+
+                btn.appendChild(yearSpan);
+                btn.appendChild(emojiSpan);
+                container.appendChild(btn);
+            });
+        }
+
+        // Navigate page helper
+        function navigatePage(direction) {
+            let nextIdx = currentIndex + direction;
+            if (nextIdx < 0) nextIdx = memories.length - 1;
+            if (nextIdx >= memories.length) nextIdx = 0;
+            selectMemory(nextIdx);
+        }
+
+        // Select particular index
+        function selectMemory(idx) {
+            if (idx === currentIndex) return;
+            currentIndex = idx;
+            playPageFlipSound();
+            
+            // CSS Animation Reset & Trigger
+            const leftPage = document.getElementById('left-page');
+            const rightPage = document.getElementById('right-page');
+            
+            leftPage.classList.add('opacity-30', 'scale-95');
+            rightPage.classList.add('opacity-30', 'scale-95');
+
+            setTimeout(() => {
+                updateAlbumView();
+                leftPage.classList.remove('opacity-30', 'scale-95');
+                rightPage.classList.remove('opacity-30', 'scale-95');
+            }, 300);
+        }
+
+        // Refresh values inside scrapbook pages
+        function updateAlbumView() {
+            if (memories.length === 0) return;
+            const item = memories[currentIndex];
+
+            // Image and polaroid
+            document.getElementById('memory-img').src = item.image;
+            document.getElementById('memory-img').alt = item.title;
+            document.getElementById('memory-date').textContent = `YEAR: ${item.year}`;
+            document.getElementById('memory-subcaption').textContent = item.title;
+            
+            // Stamp details
+            document.getElementById('memory-feeling').textContent = item.feeling;
+
+            // Content Right Page
+            document.getElementById('memory-title').textContent = item.title;
+            document.getElementById('memory-story').textContent = item.story;
+            document.getElementById('memory-quote').textContent = `"${item.quote}"`;
+
+            // Pages index counter
+            document.getElementById('page-indicator').textContent = `${currentIndex + 1} / ${memories.length} 쪽`;
+            document.getElementById('page-number-left').textContent = `p. ${(currentIndex * 2) + 1}`;
+            document.getElementById('page-number-right').textContent = `p. ${(currentIndex * 2) + 2}`;
+
+            // Highlight chosen timeline button
+            const buttons = document.getElementById('timeline-buttons').children;
+            for (let i = 0; i < buttons.length; i++) {
+                if (i === currentIndex) {
+                    buttons[i].className = "px-4 py-2 rounded-xl text-xs font-serif-ko font-bold transition-all transform hover:scale-105 shadow-sm border border-stone-300/40 cursor-pointer flex flex-col items-center gap-1 bg-[#8c6a5c] text-white";
+                } else {
+                    buttons[i].className = "px-4 py-2 rounded-xl text-xs font-serif-ko font-bold transition-all transform hover:scale-105 shadow-sm border border-stone-300/40 cursor-pointer flex flex-col items-center gap-1 bg-white text-stone-700 hover:bg-stone-50";
+                }
+            }
+        }
+
+        // Open album (Transition from Cover screen to inside pages)
+        function openAlbum() {
+            playPageFlipSound();
+            document.getElementById('cover-screen').classList.add('hidden');
+            document.getElementById('album-screen').classList.remove('hidden');
+            showToast("📖 타임머신 앨범이 활성화되었습니다!");
+            
+            // Auto start sound setup on touch/gesture
+            initializeAudioContext();
+        }
+
+        // Dynamic nostalgic placeholder drawing system using HTML5 Canvas
+        function generateNostalgicPlaceholder(title, year) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+
+            // Draw cozy warm vintage paper texture gradient
+            const grad = ctx.createLinearGradient(0, 0, 600, 450);
+            grad.addColorStop(0, '#f2e6d9');
+            grad.addColorStop(1, '#e3d2be');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 600, 450);
+
+            // Double vintage borders
+            ctx.strokeStyle = '#8c6a5c';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
+            ctx.strokeRect(15, 15, 570, 420);
+            ctx.setLineDash([]);
+            ctx.strokeStyle = 'rgba(140, 106, 92, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(20, 20, 560, 410);
+
+            // Watermark nostalgic circular stamp in the background
+            ctx.fillStyle = 'rgba(140, 106, 92, 0.08)';
+            ctx.beginPath();
+            ctx.arc(300, 190, 75, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw dynamic camera doodle symbol
+            ctx.strokeStyle = '#8c6a5c';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Camera body
+            ctx.strokeRect(260, 160, 80, 50);
+            // Lens ring
+            ctx.beginPath();
+            ctx.arc(300, 185, 18, 0, Math.PI * 2);
+            ctx.stroke();
+            // Flash button
+            ctx.fillRect(280, 150, 40, 10);
+            // Heart light above lens
+            ctx.fillStyle = '#8c6a5c';
+            ctx.beginPath();
+            ctx.arc(325, 172, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Set beautiful text alignments
+            ctx.fillStyle = '#4a3629';
+            ctx.textAlign = 'center';
+
+            // Vintage Year Callout
+            ctx.font = 'bold 26px "Nanum Myeongjo", serif';
+            ctx.fillText(`그리운 ${year}년의 조각`, 300, 285);
+
+            // Custom Title text
+            ctx.font = '20px "Nanum Myeongjo", serif';
+            ctx.fillText(title, 300, 330);
+
+            // Cozy handwriting caption
+            ctx.font = 'italic 14px "Nanum Myeongjo", serif';
+            ctx.fillStyle = '#735749';
+            ctx.fillText("📷 소중한 기억이 고스란히 마음속에 살아 숨 쉽니다", 300, 375);
+
+            return canvas.toDataURL('image/jpeg');
+        }
+
+        // Image loading backup placeholder in case images are missing
+        function handleImageError(img) {
+            // Read title and year from current state, generate dynamic vintage illustration automatically
+            const currentItem = memories[currentIndex] || { title: "그 시절 이야기", year: 1991 };
+            img.src = generateNostalgicPlaceholder(currentItem.title, currentItem.year);
+        }
+
+        // Web Audio API Synthesis for retro analog sound effects
+        function initializeAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Beautiful sound mimicking turning paper sheet
+        function playPageFlipSound() {
+            if (!audioContext) return;
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            const now = audioContext.currentTime;
+            
+            // Create Noise buffer for paper rustle
+            const bufferSize = audioContext.sampleRate * 0.45; // 0.45 seconds
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noiseNode = audioContext.createBufferSource();
+            noiseNode.buffer = buffer;
+
+            // Bandpass filter to model acoustic card/paper friction
+            const bandpass = audioContext.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(800, now);
+            bandpass.frequency.exponentialRampToValueAtTime(180, now + 0.45);
+            bandpass.Q.setValueAtTime(2.5, now);
+
+            // Audio gain contour
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.12, now + 0.08);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+            noiseNode.connect(bandpass);
+            bandpass.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            noiseNode.start(now);
+            noiseNode.stop(now + 0.5);
+
+            // Deep page resonance sub-chime
+            const osc = audioContext.createOscillator();
+            const oscGain = audioContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+
+            oscGain.gain.setValueAtTime(0, now);
+            oscGain.gain.linearRampToValueAtTime(0.08, now + 0.05);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+            osc.connect(oscGain);
+            oscGain.connect(audioContext.destination);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        }
+
+        // Toggle cozy warm low-frequency background oscillator
+        function toggleAmbientSound() {
+            initializeAudioContext();
+            const icon = document.getElementById('music-icon');
+            const text = document.getElementById('music-text');
+
+            if (!isMusicPlaying) {
+                isMusicPlaying = true;
+                icon.className = "fa-solid fa-volume-high text-amber-700 animate-pulse";
+                text.textContent = "배경 멜로디 끄기";
+                startAmbientMusic();
+                showToast("✨ 편안함을 더해주는 오르골 멜로디가 켜졌습니다.");
+            } else {
+                isMusicPlaying = false;
+                icon.className = "fa-solid fa-volume-xmark text-stone-500";
+                text.textContent = "배경 멜로디 켜기";
+                stopAmbientMusic();
+                showToast("🔇 멜로디를 정지했습니다.");
+            }
+        }
+
+        // Dynamic Retro Ambient sound player
+        function startAmbientMusic() {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+
+            ambientGain = audioContext.createGain();
+            ambientGain.gain.setValueAtTime(0.04, now);
+            ambientGain.connect(audioContext.destination);
+
+            // Generative nostalgic scale loop (Pentatonic, calming)
+            const notes = [261.63, 293.66, 329.63, 392.00, 440.00]; // C4, D4, E4, G4, A4
+            let noteIndex = 0;
+
+            function playNextNote() {
+                if (!isMusicPlaying) return;
+                const noteTime = audioContext.currentTime;
+                
+                // Classic warm sine pluck
+                const pluck = audioContext.createOscillator();
+                const pluckGain = audioContext.createGain();
+                
+                pluck.type = 'sine';
+                // Pick a note semi-randomly from notes array for natural flow
+                noteIndex = (noteIndex + Math.floor(Math.random() * 2) + 1) % notes.length;
+                pluck.frequency.setValueAtTime(notes[noteIndex], noteTime);
+
+                pluckGain.gain.setValueAtTime(0, noteTime);
+                pluckGain.gain.linearRampToValueAtTime(0.06, noteTime + 0.15);
+                pluckGain.gain.exponentialRampToValueAtTime(0.001, noteTime + 2.8);
+
+                // Add a cozy low bandpass for record-player scratch style
+                const filter = audioContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, noteTime);
+
+                pluck.connect(filter);
+                filter.connect(pluckGain);
+                pluckGain.connect(ambientGain);
+
+                pluck.start(noteTime);
+                pluck.stop(noteTime + 3.0);
+
+                // Schedule next note in 2-3 seconds
+                setTimeout(playNextNote, 2200 + Math.random() * 800);
+            }
+
+            playNextNote();
+        }
+
+        function stopAmbientMusic() {
+            if (ambientGain) {
+                try {
+                    ambientGain.disconnect();
+                } catch(e){}
+                ambientGain = null;
+            }
+        }
+
+        // Slideshow: auto slide-show tour
+        function toggleSlideshow() {
+            const btn = document.getElementById('btn-slideshow');
+            const icon = document.getElementById('slideshow-icon');
+            const text = document.getElementById('slideshow-text');
+
+            if (!slideshowInterval) {
+                // Start Slide Show
+                icon.className = "fa-solid fa-pause text-white";
+                text.textContent = "여행 정지";
+                btn.className = "px-3 py-1.5 rounded-full bg-red-800 hover:bg-red-900 text-white text-xs flex items-center gap-2 shadow-sm transition-all";
+                showToast("⏰ 기억의 시간을 따라가는 슬라이드쇼 여행을 떠납니다.");
+
+                slideshowInterval = setInterval(() => {
+                    navigatePage(1);
+                }, 4000); // changes card every 4 seconds
+            } else {
+                // Stop Slide Show
+                clearInterval(slideshowInterval);
+                slideshowInterval = null;
+                icon.className = "fa-solid fa-play text-white";
+                text.textContent = "자동 여행 시작";
+                btn.className = "px-3 py-1.5 rounded-full bg-amber-800 hover:bg-amber-900 text-white text-xs flex items-center gap-2 shadow-sm transition-all";
+                showToast("⏸️ 슬라이드쇼 여행이 일시 정지되었습니다.");
+            }
+        }
+
+        // Form & Modals logic
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+        }
+
+        // Add dynamically compiled memory values from form inputs
+        function addNewMemory(event) {
+            event.preventDefault();
+            
+            const yearVal = parseInt(document.getElementById('form-year').value);
+            const titleVal = document.getElementById('form-title').value;
+            const imageVal = document.getElementById('form-image').value;
+            const feelingVal = document.getElementById('form-feeling').value;
+            const quoteVal = document.getElementById('form-quote').value;
+            const storyVal = document.getElementById('form-story').value;
+
+            const newObj = {
+                year: yearVal,
+                title: titleVal,
+                story: storyVal,
+                image: imageVal,
+                feeling: feelingVal,
+                quote: quoteVal
+            };
+
+            // Push and sort
+            memories.push(newObj);
+            memories.sort((a, b) => a.year - b.year);
+
+            // Re-render timeline & find added idx to show it immediately
+            const targetIdx = memories.findIndex(m => m.year === yearVal && m.title === titleVal);
+            currentIndex = targetIdx !== -1 ? targetIdx : 0;
+
+            renderTimeline();
+            updateAlbumView();
+            closeAddModal();
+            showToast(`📝 ${yearVal}년의 새로운 이야기를 일기장에 보관했습니다!`);
+            playPageFlipSound();
+
+            // Clear input forms
+            event.target.reset();
+        }
+
+        // Non-intrusive elegant notifications toast
+        function showToast(message) {
+            const toast = document.getElementById('toast-box');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.textContent = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Support Swipe Gestures on Polaroid & Pages for tablet/touchscreen devices
+        let startX = 0;
+        const leftPage = document.getElementById('left-page');
+        const rightPage = document.getElementById('right-page');
+
+        function handleTouchStart(e) {
+            startX = e.touches[0].clientX;
+        }
+
+        function handleTouchEnd(e) {
+            let diffX = e.changedTouches[0].clientX - startX;
+            if (Math.abs(diffX) > 60) { // minimum threshold 60px
+                if (diffX < 0) {
+                    navigatePage(1); // Swiped Left
+                } else {
+                    navigatePage(-1); // Swiped Right
+                }
+            }
+        }
+
+        [leftPage, rightPage].forEach(page => {
+            page.addEventListener('touchstart', handleTouchStart, false);
+            page.addEventListener('touchend', handleTouchEnd, false);
+        });
+
+    </script>
+</body>
+</html>
